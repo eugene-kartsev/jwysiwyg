@@ -40,7 +40,8 @@
 					fontWeight: "bold"
 				},
 				tooltip: "Bold",
-				hotkey: {"ctrl": 1, "key": 66}
+				hotkey: {"ctrl": 1, "key": 66},
+                pin: true
 			},
 
 			copy: {
@@ -91,7 +92,9 @@
 				command: ($.browser.msie || $.browser.safari) ? "FormatBlock" : "heading",
 				"arguments": ($.browser.msie || $.browser.safari) ? "<h1>" : "h1",
 				tags: ["h1"],
-				tooltip: "Header 1"
+				tooltip: "Header 1",
+                pin: true,
+                oneSelected: true
 			},
 
 			h2: {
@@ -101,7 +104,9 @@
 				command: ($.browser.msie || $.browser.safari)	? "FormatBlock" : "heading",
 				"arguments": ($.browser.msie || $.browser.safari) ? "<h2>" : "h2",
 				tags: ["h2"],
-				tooltip: "Header 2"
+				tooltip: "Header 2",
+                pin: true,
+                oneSelected: true
 			},
 
 			h3: {
@@ -111,7 +116,9 @@
 				command: ($.browser.msie || $.browser.safari) ? "FormatBlock" : "heading",
 				"arguments": ($.browser.msie || $.browser.safari) ? "<h3>" : "h3",
 				tags: ["h3"],
-				tooltip: "Header 3"
+				tooltip: "Header 3",
+                pin: true,
+                oneSelected: true
 			},
 
 			highlight: {
@@ -314,7 +321,8 @@
 					fontStyle: "italic"
 				},
 				tooltip: "Italic",
-				hotkey: {"ctrl": 1, "key": 73}
+				hotkey: {"ctrl": 1, "key": 73},
+                pin: true
 			},
 
 			justifyCenter: {
@@ -324,7 +332,9 @@
 				css: {
 					textAlign: "center"
 				},
-				tooltip: "Justify Center"
+				tooltip: "Justify Center",
+                pin: true,
+                oneSelected: true
 			},
 
 			justifyFull: {
@@ -333,7 +343,9 @@
 				css: {
 					textAlign: "justify"
 				},
-				tooltip: "Justify Full"
+				tooltip: "Justify Full",
+                pin: true,
+                oneSelected: true
 			},
 
 			justifyLeft: {
@@ -342,7 +354,10 @@
 				css: {
 					textAlign: "left"
 				},
-				tooltip: "Justify Left"
+				tooltip: "Justify Left",
+                pin: true,
+                oneSelected: true,
+                groupDefault: true
 			},
 
 			justifyRight: {
@@ -351,7 +366,9 @@
 				css: {
 					textAlign: "right"
 				},
-				tooltip: "Justify Right"
+				tooltip: "Justify Right",
+                pin: true,
+                oneSelected: true
 			},
 
 			ltr: {
@@ -383,7 +400,10 @@
 				command: "FormatBlock",
 				"arguments": ($.browser.msie || $.browser.safari) ? "<p>" : "p",
 				tags: ["p"],
-				tooltip: "Paragraph"
+				tooltip: "Paragraph",
+                pin: true,
+                oneSelected: true,
+                groupDefault: true
 			},
 
 			paste: {
@@ -430,21 +450,24 @@
 				css: {
 					textDecoration: "line-through"
 				},
-				tooltip: "Strike-through"
+				tooltip: "Strike-through",
+                pin: true
 			},
 
 			subscript: {
 				groupIndex: 3,
 				visible: true,
 				tags: ["sub"],
-				tooltip: "Subscript"
+				tooltip: "Subscript",
+                pin: true
 			},
 
 			superscript: {
 				groupIndex: 3,
 				visible: true,
 				tags: ["sup"],
-				tooltip: "Superscript"
+				tooltip: "Superscript",
+                pin: true
 			},
 
 			underline: {
@@ -455,7 +478,8 @@
 					textDecoration: "underline"
 				},
 				tooltip: "Underline",
-				hotkey: {"ctrl": 1, "key": 85}
+				hotkey: {"ctrl": 1, "key": 85},
+                pin: true
 			},
 
 			undo: {
@@ -494,7 +518,7 @@
 		};
 
 		this.defaults = {
-html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" style="margin:0"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body style="margin:0;">INITIAL_CONTENT</body></html>',
+html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" style="margin:0"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>p, div, h1, h2, h3, ul, li, ol { margin:3px 0; padding:0; } h1 {margin:5px 0;} h2{margin:4px 0}</style></head><body style="margin:0;">INITIAL_CONTENT</body></html>',
 			debug: false,
 			controls: {},
 			css: {},
@@ -536,7 +560,10 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				}
 			},
 			
-			dialog : "default"
+			dialog : "default",
+            pin : false, /* whether it's possible to pin/unpin the button  */
+            oneSelected: false, /* the property specifies whether only one button in the group should be selected (pinned) */
+            groupDefault: false /* the control will be selected when all items in group are not selected */
 		};
 
 		//these properties are set from control hashes
@@ -553,9 +580,12 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			"icon",
 			"tags",
 			"tooltip",
-			"visible"
+			"visible",
+            "pin",
+            "oneSelected",
+            "groupDefault"
 		];
-
+        
 		this.editor			= null;  //jquery iframe holder
 		this.editorDoc		= null;
 		this.element		= null;
@@ -564,6 +594,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 		this.savedRange		= null;
 		this.timers			= [];
 		this.validKeyCodes	= [8, 9, 13, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46];
+        this.validAligns    = ["left", "right", "center", "justify"];
 
 		this.isDestroyed	= false;
 
@@ -783,13 +814,25 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					* @link https://github.com/akzhan/jwysiwyg/issues/219
 					*/
 					var $target = $(event.target);
-					for (var controlName in self.controls) {
-						if ($target.hasClass(controlName)) {
-							self.ui.toolbar.find("." + controlName).toggleClass("active");
-							self.editorDoc.rememberCommand = true;
-							break;
-						}
-					}
+                    var controls = self.controls;
+
+                    /* if control is able to pin */
+                    if(control.pin) {
+                        var toolbar = self.ui.toolbar;
+                        
+                        if(control.oneSelected) {
+                            /* unpin all controls from the same group */
+                            var groupIndex = control.groupIndex;
+                            for(var groupControl in controls) {
+                                if(controls[groupControl].groupIndex === groupIndex) {
+                                    toolbar.find("." + groupControl).removeClass("active");
+                                }
+                            }
+                        }
+                        
+                        /* pin selected control */
+                        $target.toggleClass("active");
+                    }
                     
 					this.blur();
 					self.ui.returnRange();
@@ -839,10 +882,89 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			this.saveContent();
 		};
 
-		//called after click in wysiwyg "textarea"
-		this.ui.checkTargets = function (element) {
-			var self = this.self;
+        this.getGroupDefaultControl = function(groupIndex) {
+            var self = this;
 
+            if(groupIndex === 0 || groupIndex) {
+                var controls = self.controls;
+                for(var ctrl in controls) {
+                    if(controls[ctrl].groupIndex === groupIndex && controls[ctrl].groupDefault) {
+                        return controls[ctrl];
+                    }
+                }
+            }
+            return null;
+        };
+        
+        this.ui.checkAlign = function(element) {
+            var self = this.self;
+            
+            if(element) {
+                var align = null;
+                var $nodes = $(element).add($(element).parents());
+	
+                for(var i = 0; i < $nodes.length; i++) {
+                    var $node = $($nodes[i]);
+                    align = $node.attr("align") || $node.css("text-align");
+                    if($.inArray(align, self.validAligns) > -1) {
+                        break;
+                    }
+                    align = null;
+                }
+
+                if(!align) {
+                    /* highlight justifyLeft if any */
+                    var defControl = self.getGroupDefaultControl(self.controls.justifyLeft.groupIndex);
+                    if(defControl)
+                        align = defControl.css.textAlign;
+                }
+                
+                if(!align) return;
+                
+                var controls = self.controls;
+                var toolbar = self.ui.toolbar;
+                var groupIndex = 1;
+                
+                for(var ctrl in controls) {
+                    if(controls[ctrl].groupIndex == groupIndex) {
+                        var toolbarControl = toolbar.find("." + ctrl);
+                        if(controls[ctrl].css.textAlign === align) {
+                            toolbarControl.addClass("active");
+                        }
+                        else {
+                            toolbarControl.removeClass("active");
+                        }
+                    }
+                }
+            }
+        };
+        
+        this.ui.checkFormat = function(element) {
+            var self = this.self;
+            if(element) {
+                var toolbar = self.ui.toolbar;
+                var controls = self.controls;
+                var formatGroupIndex = controls.paragraph.groupIndex;
+                
+                for(var ctrl in controls) {
+                    var toolbarControl = toolbar.find("." + ctrl);
+                    if(controls[ctrl].groupIndex === formatGroupIndex && toolbarControl.hasClass("active")) {
+                        return;
+                    }
+                }
+                
+                var defaultControl = self.getGroupDefaultControl(formatGroupIndex);
+                toolbar.find("." + defaultControl.className).addClass("active");
+            }
+        };
+        
+		//called after click or keyup in wysiwyg "textarea"
+		this.ui.checkTargets = function (element) {
+            /* do not check targets for <html> */
+            if($(element).is("html")) return;
+
+			var self = this.self;
+            
 			//activate controls
 			$.each(self.options.controls, function (name, control) {
 				var className = control.className || control.command || name || "empty",
@@ -870,7 +992,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				}
 
 				//activate by allowed tags
-				if (control.tags || (control.options && control.options.tags)) {
+				if (control.tags || (control.options && control.options.tags) && control.pin) {
 					tags = control.tags || (control.options && control.options.tags);
 
 					elm = element;
@@ -888,7 +1010,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				}
 
 				//activate by supposed css
-				if (control.css || (control.options && control.options.css)) {
+				if (control.css || (control.options && control.options.css) && control.pin) {
 					css = control.css || (control.options && control.options.css);
 					el = $(element);
 
@@ -902,6 +1024,9 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					}
 				}
 			});
+            
+            self.ui.checkAlign(element);
+            self.ui.checkFormat(element);
 		};
 
 		this.ui.designMode = function () {
@@ -1329,6 +1454,28 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			$form.bind("reset.wysiwyg", function () { self.resetFunction(); });
 		};
 
+        this.ui.checkToolbarState = function() {
+            var self = this.self;
+        
+            var offset = null;
+
+            try {
+                var range = self.getInternalRange();
+                if (range) {
+                    offset = {
+                        range: range,
+                        parent: ($.isFunction(range.parentElement) ? range.parentElement() : (range.endContainer.parentNode ? range.endContainer.parentNode : null)),
+                        width: (typeof(range.startOffset) != "undefined" ? (range.startOffset - range.endOffset) : range.boundingWidth) || 0
+                    };
+                }
+            }
+            catch (e) { console.error(e); }
+
+            if (offset && offset.width == 0) {
+                self.ui.checkTargets(offset.parent);
+            }
+        };
+        
 		this.ui.initFrame = function () {
 			var self = this.self,
 				stylesheet,
@@ -1368,28 +1515,6 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				self.ui.checkTargets(event.target ? event.target : event.srcElement);
 			});
 
-            /**
-             * @link https://github.com/akzhan/jwysiwyg/issues/251
-             */
-            setInterval(function () {
-                var offset = null;
-
-                try {
-                    var range = self.getInternalRange();
-                    if (range) {
-                        offset = {
-                            range: range,
-                            parent: $.browser.msie ? range.parentElement() : range.endContainer.parentNode,
-                            width: ($.browser.msie ? range.boundingWidth : range.startOffset - range.endOffset) || 0
-                        };
-                    }
-                }
-                catch (e) { console.error(e); }
-
-                if (offset && offset.width == 0 && !self.editorDoc.rememberCommand) {
-                    self.ui.checkTargets(offset.parent);
-                }
-            }, 400);
             
 			/**
 			 * @link http://code.google.com/p/jwysiwyg/issues/detail?id=20
@@ -1410,11 +1535,23 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 						return false;
 					}
 				}
-                
-                self.editorDoc.rememberCommand = false;
+
 				return true;
 			});
 
+            $(self.editorDoc).keyup(function(event) {
+                if($.inArray(event.keyCode, self.validKeyCodes) > -1) {
+                    /* HACK: do not allow using <br> tag as root tag (ctrl+a -> del) */
+                    var $children = $(self.editorDoc.body).children();
+                    if($children.first().is("br")) {
+                        $children.unbind().remove();
+                        self.editorDoc.execCommand("formatBlock", false, self.controls.paragraph.arguments);
+                    }
+
+                    setTimeout(function() { self.ui.checkToolbarState(); }, 100);
+                }
+            });
+            
 			if (!$.browser.msie) {
 				$(self.editorDoc).keydown(function (event) {
 					var controlName;
@@ -1438,9 +1575,9 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				$(self.editorDoc).keydown(function (event) {
 					if (event.keyCode === 13) {
 						var rng = self.getRange();
-						rng.pasteHTML("<br/>");
-						rng.collapse(false);
-						rng.select();
+                            rng.pasteHTML("<br/>");
+                            rng.collapse(false);
+                            rng.select();
 
 						return false;
 					}
@@ -1574,7 +1711,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			 * XHTML5 {@link https://github.com/akzhan/jwysiwyg/issues/152}
 			 */
 			if (self.options.xhtml5 && self.options.unicode) {
-				var replacements = {ne:8800,le:8804,para:182,xi:958,darr:8595,nu:957,oacute:243,Uacute:218,omega:969,prime:8242,pound:163,igrave:236,thorn:254,forall:8704,emsp:8195,lowast:8727,brvbar:166,alefsym:8501,nbsp:160,delta:948,clubs:9827,lArr:8656,Omega:937,Auml:196,cedil:184,and:8743,plusmn:177,ge:8805,raquo:187,uml:168,equiv:8801,laquo:171,rdquo:8221,Epsilon:917,divide:247,fnof:402,chi:967,Dagger:8225,iacute:237,rceil:8969,sigma:963,Oslash:216,acute:180,frac34:190,lrm:8206,upsih:978,Scaron:352,part:8706,exist:8707,nabla:8711,image:8465,prop:8733,zwj:8205,omicron:959,aacute:225,Yuml:376,Yacute:221,weierp:8472,rsquo:8217,otimes:8855,kappa:954,thetasym:977,harr:8596,Ouml:214,Iota:921,ograve:242,sdot:8901,copy:169,oplus:8853,acirc:226,sup:8835,zeta:950,Iacute:205,Oacute:211,crarr:8629,Nu:925,bdquo:8222,lsquo:8216,apos:39,Beta:914,eacute:233,egrave:232,lceil:8968,Kappa:922,piv:982,Ccedil:199,ldquo:8220,Xi:926,cent:162,uarr:8593,hellip:8230,Aacute:193,ensp:8194,sect:167,Ugrave:217,aelig:230,ordf:170,curren:164,sbquo:8218,macr:175,Phi:934,Eta:919,rho:961,Omicron:927,sup2:178,euro:8364,aring:229,Theta:920,mdash:8212,uuml:252,otilde:245,eta:951,uacute:250,rArr:8658,nsub:8836,agrave:224,notin:8713,ndash:8211,Psi:936,Ocirc:212,sube:8838,szlig:223,micro:181,not:172,sup1:185,middot:183,iota:953,ecirc:234,lsaquo:8249,thinsp:8201,sum:8721,ntilde:241,scaron:353,cap:8745,atilde:227,lang:10216,__replacement:65533,isin:8712,gamma:947,Euml:203,ang:8736,upsilon:965,Ntilde:209,hearts:9829,Alpha:913,Tau:932,spades:9824,dagger:8224,THORN:222,"int":8747,lambda:955,Eacute:201,Uuml:220,infin:8734,rlm:8207,Aring:197,ugrave:249,Egrave:200,Acirc:194,rsaquo:8250,ETH:208,oslash:248,alpha:945,Ograve:210,Prime:8243,mu:956,ni:8715,real:8476,bull:8226,beta:946,icirc:238,eth:240,prod:8719,larr:8592,ordm:186,perp:8869,Gamma:915,reg:174,ucirc:251,Pi:928,psi:968,tilde:732,asymp:8776,zwnj:8204,Agrave:192,deg:176,AElig:198,times:215,Delta:916,sim:8764,Otilde:213,Mu:924,uArr:8657,circ:710,theta:952,Rho:929,sup3:179,diams:9830,tau:964,Chi:935,frac14:188,oelig:339,shy:173,or:8744,dArr:8659,phi:966,iuml:239,Lambda:923,rfloor:8971,iexcl:161,cong:8773,ccedil:231,Icirc:206,frac12:189,loz:9674,rarr:8594,cup:8746,radic:8730,frasl:8260,euml:235,OElig:338,hArr:8660,Atilde:195,Upsilon:933,there4:8756,ouml:246,oline:8254,Ecirc:202,yacute:253,auml:228,permil:8240,sigmaf:962,iquest:191,empty:8709,pi:960,Ucirc:219,supe:8839,Igrave:204,yen:165,rang:10217,trade:8482,lfloor:8970,minus:8722,Zeta:918,sub:8834,epsilon:949,yuml:255,Sigma:931,Iuml:207,ocirc:244};
+				var replacements = {ne:8800,le:8804,para:182,xi:958,darr:8595,nu:957,oacute:243,Uacute:218,omega:969,prime:8242,pound:163,igrave:236,thorn:254,forall:8704,emsp:8195,lowast:8727,brvbar:166,alefsym:8501,nbsp:160,delta:948,clubs:9827,lArr:8656,Omega:937,Auml:196,cedil:184,and:8743,plusmn:177,ge:8805,raquo:187,uml:168,equiv:8801,laquo:171,rdquo:8,Epsilon:917,divide:247,fnof:402,chi:967,Dagger:8225,iacute:237,rceil:8969,sigma:963,Oslash:216,acute:180,frac34:190,lrm:8206,upsih:978,Scaron:352,part:8706,exist:8707,nabla:8711,image:8465,prop:8733,zwj:8205,omicron:959,aacute:225,Yuml:376,Yacute:221,weierp:8472,rsquo:8217,otimes:8855,kappa:954,thetasym:977,harr:8596,Ouml:214,Iota:921,ograve:242,sdot:8901,copy:169,oplus:8853,acirc:226,sup:8835,zeta:950,Iacute:205,Oacute:211,crarr:8629,Nu:925,bdquo:8222,lsquo:8216,apos:39,Beta:914,eacute:233,egrave:232,lceil:8968,Kappa:922,piv:982,Ccedil:199,ldquo:8220,Xi:926,cent:162,uarr:8593,hellip:8230,Aacute:193,ensp:8194,sect:167,Ugrave:217,aelig:230,ordf:170,curren:164,sbquo:8218,macr:175,Phi:934,Eta:919,rho:961,Omicron:927,sup2:178,euro:8364,aring:229,Theta:920,mdash:8212,uuml:252,otilde:245,eta:951,uacute:250,rArr:8658,nsub:8836,agrave:224,notin:8713,ndash:8211,Psi:936,Ocirc:212,sube:8838,szlig:223,micro:181,not:172,sup1:185,middot:183,iota:953,ecirc:234,lsaquo:8249,thinsp:8201,sum:8721,ntilde:241,scaron:353,cap:8745,atilde:227,lang:10216,__replacement:65533,isin:8712,gamma:947,Euml:203,ang:8736,upsilon:965,Ntilde:209,hearts:9829,Alpha:913,Tau:932,spades:9824,dagger:8224,THORN:222,"int":8747,lambda:955,Eacute:201,Uuml:220,infin:8734,rlm:8207,Aring:197,ugrave:249,Egrave:200,Acirc:194,rsaquo:8250,ETH:208,oslash:248,alpha:945,Ograve:210,Prime:8243,mu:956,ni:8715,real:8476,bull:8226,beta:946,icirc:238,eth:240,prod:8719,larr:8592,ordm:186,perp:8869,Gamma:915,reg:174,ucirc:251,Pi:928,psi:968,tilde:732,asymp:8776,zwnj:8204,Agrave:192,deg:176,AElig:198,times:215,Delta:916,sim:8764,Otilde:213,Mu:924,uArr:8657,circ:710,theta:952,Rho:929,sup3:179,diams:9830,tau:964,Chi:935,frac14:188,oelig:339,shy:173,or:8744,dArr:8659,phi:966,iuml:239,Lambda:923,rfloor:8971,iexcl:161,cong:8773,ccedil:231,Icirc:206,frac12:189,loz:9674,rarr:8594,cup:8746,radic:8730,frasl:8260,euml:235,OElig:338,hArr:8660,Atilde:195,Upsilon:933,there4:8756,ouml:246,oline:8254,Ecirc:202,yacute:253,auml:228,permil:8240,sigmaf:962,iquest:191,empty:8709,pi:960,Ucirc:219,supe:8839,Igrave:204,yen:165,rang:10217,trade:8482,lfloor:8970,minus:8722,Zeta:918,sub:8834,epsilon:949,yuml:255,Sigma:931,Iuml:207,ocirc:244};
 				self.events.bind("getContent", function (text) {
 					return text.replace(/&(?:amp;)?(?!amp|lt|gt|quot)([a-z][a-z0-9]*);/gi, function (str, p1) {
 						if (!replacements[p1]) {
@@ -1590,6 +1727,8 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 					});
 				});
 			}
+            
+            self.editorDoc.execCommand("formatBlock", false, "<p>");
 			$(self.original).trigger('ready.jwysiwyg', [self.editorDoc, self]);
 		};
 
@@ -2279,9 +2418,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 
 					var dialogHeight = this.options.height == 'auto' ? 300 : this.options.height,
 						dialogWidth = this.options.width == 'auto' ? 450 : this.options.width;
-
-					// console.log(that._$dialog);
-					
+				
 					that._$dialog.dialog({
 						modal: this.options.modal,
 						draggable: this.options.draggable,
